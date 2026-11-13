@@ -24,6 +24,7 @@ storage/
 temp/
 media/
 data/
+test-videos/
 postgres-data/
 rabbitmq-data/
 redis-data/
