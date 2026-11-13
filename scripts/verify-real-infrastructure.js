@@ -23,7 +23,7 @@ function httpRequest(options, data = null) {
       res.on('data', (chunk) => (body += chunk));
       res.on('end', () => {
         let json = null;
-        try { json = JSON.parse(body); } catch (_) {}
+        try { json = JSON.parse(body); } catch (_) { }
         resolve({ status: res.statusCode, headers: res.headers, body, json });
       });
     });
@@ -122,9 +122,9 @@ async function runRealInfraVerification() {
   } catch (err) {
     console.error('Error during verification:', err);
   } finally {
-    try { web1.kill(); } catch (_) {}
-    try { web2.kill(); } catch (_) {}
-    try { redisProc.kill(); } catch (_) {}
+    try { web1.kill(); } catch (_) { }
+    try { web2.kill(); } catch (_) { }
+    try { redisProc.kill(); } catch (_) { }
   }
 }
 

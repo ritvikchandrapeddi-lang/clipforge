@@ -27,26 +27,27 @@ healthRouter.get('/health', (req: Request, res: Response) => {
  * Readiness probe evaluating database connectivity, storage accessibility, and broker state.
  */
 healthRouter.get('/ready', async (req: Request, res: Response) => {
-  const dbStatus = isDbReady();
+  const isPostgresReal = isRealPostgresConnected();
   const storageWritable = fs.existsSync(STORAGE_DIR);
   const rabbitMqStatus = isRabbitMqReady();
+  const redisStatus = isRedisReady();
 
-  const isReady = dbStatus && storageWritable;
+  const isReady = isPostgresReal && storageWritable;
 
   res.status(isReady ? 200 : 503).json({
     status: isReady ? 'ready' : 'degraded',
     instance: INSTANCE_ID,
     infrastructure: {
-      database: isRealPostgresConnected() ? 'connected' : 'disconnected',
+      database: isPostgresReal ? 'connected' : 'disconnected',
       storage: storageWritable ? 'accessible' : 'unavailable',
       rabbitmq: rabbitMqStatus ? 'connected' : 'disconnected',
-      redis: isRedisReady() ? 'connected' : 'simulated',
+      redis: redisStatus ? 'connected' : 'simulated',
     },
     components: {
-      database: dbStatus ? 'connected' : 'offline',
+      database: isPostgresReal ? 'connected' : 'disconnected',
       storage: storageWritable ? 'accessible' : 'unavailable',
       rabbitmq: rabbitMqStatus ? 'connected' : 'fallback_queue',
-      redis: isRedisReady() ? 'connected' : 'simulated',
+      redis: redisStatus ? 'connected' : 'simulated',
     },
     timestamp: new Date().toISOString(),
   });

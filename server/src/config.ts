@@ -2,6 +2,11 @@ import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
 
+// Explicitly load root .env first
+const rootEnvPath = path.resolve(__dirname, '../../.env');
+if (fs.existsSync(rootEnvPath)) {
+  dotenv.config({ path: rootEnvPath, override: true });
+}
 dotenv.config();
 
 export const PORT = parseInt(process.env.PORT || '4001', 10);

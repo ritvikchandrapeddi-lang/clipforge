@@ -26,14 +26,37 @@ function saveFallbackDb(db: any): void {
   fs.renameSync(tmpPath, FALLBACK_DB_PATH);
 }
 
+export function parseAndSanitizeDbUrl(rawUrl: string): { connectionString: string; isSsl: boolean } {
+  let url = (rawUrl || '').trim();
+  const isSsl =
+    url.includes('supabase.com') ||
+    url.includes('supabase.co') ||
+    url.includes('sslmode=') ||
+    process.env.PGSSLMODE === 'require';
+
+  const match = url.match(/^postgres(ql)?:\/\/([^:]+):(.+)@([^@]+:\d+\/.*)$/);
+  if (match) {
+    const user = match[2];
+    const rawPass = match[3];
+    const rest = match[4];
+    url = `postgresql://${encodeURIComponent(decodeURIComponent(user))}:${encodeURIComponent(decodeURIComponent(rawPass))}@${rest}`;
+  }
+
+  const cleanUrl = url.replace(/[\?&]sslmode=[^&]+/, '');
+  return { connectionString: cleanUrl, isSsl };
+}
+
 export async function initWorkerDb(): Promise<void> {
   initWorkerDirectories();
+  const { connectionString, isSsl } = parseAndSanitizeDbUrl(DATABASE_URL);
+
   try {
     pgPool = new Pool({
-      connectionString: DATABASE_URL,
+      connectionString,
+      ssl: isSsl ? { rejectUnauthorized: false } : undefined,
       max: 10,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
+      connectionTimeoutMillis: 10000,
     });
     const client = await pgPool.connect();
     client.release();
