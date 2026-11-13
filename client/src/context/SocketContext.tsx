@@ -372,14 +372,44 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const refreshData = useCallback(async () => {
     try {
-      const res = await fetch('/api/overview');
-      if (res.ok) {
-        const data = await res.json();
+      const [overviewRes, videosRes, pipelineRes, workersRes, queuesRes, deptRes] = await Promise.allSettled([
+        fetch('/api/overview'),
+        fetch('/api/videos'),
+        fetch('/api/pipeline'),
+        fetch('/api/workers'),
+        fetch('/api/queues'),
+        fetch('/api/departments'),
+      ]);
+
+      if (overviewRes.status === 'fulfilled' && overviewRes.value.ok) {
+        const data = await overviewRes.value.json();
         if (data.stats) setStats(data.stats);
-        if (data.videos) setVideos(data.videos);
-        if (data.workers) setWorkers(data.workers);
-        if (data.queues) setQueues(data.queues);
-        if (data.observatory) setObservatory(data.observatory);
+        if (data.instanceId) setActiveWebInstance(`${data.instanceId} (Active)`);
+      }
+
+      if (videosRes.status === 'fulfilled' && videosRes.value.ok) {
+        const data = await videosRes.value.json();
+        if (data.videos && data.videos.length > 0) setVideos(data.videos);
+      }
+
+      if (pipelineRes.status === 'fulfilled' && pipelineRes.value.ok) {
+        const data = await pipelineRes.value.json();
+        if (data.jobs && data.jobs.length > 0) setJobs(data.jobs);
+      }
+
+      if (workersRes.status === 'fulfilled' && workersRes.value.ok) {
+        const data = await workersRes.value.json();
+        if (data.workers && data.workers.length > 0) setWorkers(data.workers);
+      }
+
+      if (queuesRes.status === 'fulfilled' && queuesRes.value.ok) {
+        const data = await queuesRes.value.json();
+        if (data.queues && data.queues.length > 0) setQueues(data.queues);
+      }
+
+      if (deptRes.status === 'fulfilled' && deptRes.value.ok) {
+        const data = await deptRes.value.json();
+        if (data.departments && data.departments.length > 0) setDepartments(data.departments);
       }
     } catch (e) {
       console.log('API refresh skipped, running offline mode');

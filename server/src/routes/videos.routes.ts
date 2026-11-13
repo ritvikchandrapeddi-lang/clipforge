@@ -164,3 +164,4 @@ videoRouter.get('/jobs/:id', async (req: Request, res: Response): Promise<void> 
     res.status(500).json({ error: `Failed to fetch job: ${err.message}` });
   }
 });
+
