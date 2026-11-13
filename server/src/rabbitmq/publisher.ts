@@ -21,6 +21,7 @@ let rabbitMqAvailable = false;
 
 // Local in-memory backlog for offline dev resilience
 const offlinePendingQueue: { stage: string; message: any }[] = [];
+let localEnqueueCount = 0;
 
 export async function initRabbitMQ(): Promise<void> {
   if (isConnecting || confirmChannel) return;
@@ -116,7 +117,10 @@ export async function publishToStage(stage: string, message: any): Promise<boole
   const content = Buffer.from(JSON.stringify(message));
 
   if (!confirmChannel || !rabbitMqAvailable) {
-    console.log(`[RabbitMQ Mock Queue] Enqueued job for stage "${stage}" locally. Payload:`, message.jobId || message.id);
+    localEnqueueCount++;
+    if (localEnqueueCount <= 3 || localEnqueueCount % 100 === 0) {
+      console.log(`[RabbitMQ Resilient Queue] Enqueued job (${localEnqueueCount}) for stage "${stage}". Payload:`, message.jobId || message.id);
+    }
     offlinePendingQueue.push({ stage, message });
     return true;
   }

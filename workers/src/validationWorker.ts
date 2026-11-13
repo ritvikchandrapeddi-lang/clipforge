@@ -55,3 +55,4 @@ export class ValidationWorker extends BaseWorker {
     };
   }
 }
+

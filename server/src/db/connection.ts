@@ -19,13 +19,24 @@ interface FallbackDatabase {
   dead_letter_records: Record<string, any>;
 }
 
+let dbInMemory: FallbackDatabase | null = null;
+let lastLoadedMtime = 0;
+let lastLoadedSize = 0;
+
 function loadFallbackDb(): FallbackDatabase {
   initStorageDirectories();
   if (fs.existsSync(FALLBACK_DB_PATH)) {
     try {
-      const data = JSON.parse(fs.readFileSync(FALLBACK_DB_PATH, 'utf-8'));
-      return data;
+      const stat = fs.statSync(FALLBACK_DB_PATH);
+      if (!dbInMemory || stat.mtimeMs !== lastLoadedMtime || stat.size !== lastLoadedSize) {
+        const data = JSON.parse(fs.readFileSync(FALLBACK_DB_PATH, 'utf-8'));
+        dbInMemory = data;
+        lastLoadedMtime = stat.mtimeMs;
+        lastLoadedSize = stat.size;
+      }
+      if (dbInMemory) return dbInMemory;
     } catch (err) {
+      if (dbInMemory) return dbInMemory;
       console.warn('Failed to parse fallback DB, initializing new one:', err);
     }
   }
@@ -44,15 +55,30 @@ function loadFallbackDb(): FallbackDatabase {
     worker_heartbeats: {},
     dead_letter_records: {},
   };
-  saveFallbackDb(initialDb);
+  dbInMemory = initialDb;
+  flushDb();
   return initialDb;
 }
 
+export function flushDb(): void {
+  if (dbInMemory) {
+    try {
+      initStorageDirectories();
+      const tmpPath = `${FALLBACK_DB_PATH}.tmp`;
+      fs.writeFileSync(tmpPath, JSON.stringify(dbInMemory, null, 2), 'utf-8');
+      fs.renameSync(tmpPath, FALLBACK_DB_PATH);
+      try {
+        const stat = fs.statSync(FALLBACK_DB_PATH);
+        lastLoadedMtime = stat.mtimeMs;
+        lastLoadedSize = stat.size;
+      } catch (_) {}
+    } catch (_) {}
+  }
+}
+
 function saveFallbackDb(db: FallbackDatabase): void {
-  initStorageDirectories();
-  const tmpPath = `${FALLBACK_DB_PATH}.tmp`;
-  fs.writeFileSync(tmpPath, JSON.stringify(db, null, 2), 'utf-8');
-  fs.renameSync(tmpPath, FALLBACK_DB_PATH);
+  dbInMemory = db;
+  flushDb();
 }
 
 export async function initDb(): Promise<void> {

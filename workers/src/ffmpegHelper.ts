@@ -333,3 +333,4 @@ export class FFmpegHelper {
     this.writeTestPosterImage(outputPath);
   }
 }
+

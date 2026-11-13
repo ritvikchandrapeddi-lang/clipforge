@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import crypto from 'crypto';
-import { query } from '../db/connection';
+import { query, flushDb } from '../db/connection';
 import { publishToStage } from '../rabbitmq/publisher';
 import { broadcastClusterEvent } from '../websocket/wsManager';
 
@@ -82,6 +82,9 @@ simulatorRouter.post('/blast', async (req: Request, res: Response) => {
       dispatchedJobs.push(simJobId);
     }
 
+    // Flush any pending fallback database writes to disk
+    flushDb();
+
     // Broadcast cluster event
     await broadcastClusterEvent('SIMULATOR_BURST_DISPATCHED', {
       jobCount,
@@ -133,3 +136,4 @@ simulatorRouter.post('/chaos/network-drop', async (req: Request, res: Response) 
     message: 'Network partition simulated. Reconnected with topology and state intact.',
   });
 });
+

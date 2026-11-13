@@ -187,3 +187,4 @@ export abstract class BaseWorker {
     }
   }
 }
+

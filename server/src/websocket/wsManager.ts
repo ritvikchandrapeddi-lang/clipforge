@@ -137,3 +137,4 @@ async function getInitialSyncPayload(): Promise<any> {
     })),
   };
 }
+

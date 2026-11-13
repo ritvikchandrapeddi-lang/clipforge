@@ -55,3 +55,4 @@ export class ThumbnailWorker extends BaseWorker {
     };
   }
 }
+
