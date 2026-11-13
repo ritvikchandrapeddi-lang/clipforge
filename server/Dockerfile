@@ -26,3 +26,4 @@ COPY server/src/db/schema.sql ./server/src/db/schema.sql
 EXPOSE 4001 4002
 
 CMD ["node", "server/dist/index.js"]
+

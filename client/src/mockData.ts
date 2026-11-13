@@ -510,3 +510,4 @@ export const mockObservatory: ObservatoryAnalysis = {
     },
   ],
 };
+

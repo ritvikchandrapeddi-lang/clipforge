@@ -133,3 +133,4 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
     </header>
   );
 };
+

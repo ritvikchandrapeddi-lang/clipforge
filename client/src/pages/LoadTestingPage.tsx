@@ -233,3 +233,4 @@ export const LoadTestingPage: React.FC<LoadTestingPageProps> = ({ onNavigate }) 
     </div>
   );
 };
+

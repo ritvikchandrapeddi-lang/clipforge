@@ -299,3 +299,4 @@ export const VideoPlayerPage: React.FC<VideoPlayerPageProps> = ({ onNavigate }) 
     </div>
   );
 };
+

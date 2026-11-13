@@ -199,3 +199,4 @@ export const WorkerManagementPage: React.FC<WorkerManagementPageProps> = ({ onNa
     </div>
   );
 };
+

@@ -105,3 +105,4 @@ VALUES
     ('dept-math', 'Mathematics & Statistics', 'MATH', 120.0, 64.0, 1.0),
     ('dept-phys', 'Physics & Biophysics', 'PHYS', 100.0, 32.5, 1.0)
 ON CONFLICT (id) DO NOTHING;
+

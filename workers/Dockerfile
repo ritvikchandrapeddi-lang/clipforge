@@ -26,3 +26,4 @@ COPY --from=builder /app/workers/dist ./workers/dist
 COPY --from=builder /app/shared ./shared
 
 CMD ["node", "workers/dist/index.js"]
+

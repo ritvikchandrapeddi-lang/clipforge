@@ -220,3 +220,4 @@ export const ObservatoryPage: React.FC<ObservatoryPageProps> = ({ onNavigate }) 
     </div>
   );
 };
+

@@ -197,3 +197,4 @@ volumes:
   rabbitmq-data:
   redis-data:
   shared-storage:
+

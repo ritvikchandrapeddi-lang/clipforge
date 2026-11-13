@@ -150,3 +150,4 @@ export const QueueManagementPage: React.FC<QueueManagementPageProps> = ({ onNavi
     </div>
   );
 };
+

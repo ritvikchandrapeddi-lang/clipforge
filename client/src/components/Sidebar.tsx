@@ -161,3 +161,4 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onSelectPage }) =
     </aside>
   );
 };
+

@@ -131,3 +131,4 @@ export const DepartmentPage: React.FC<DepartmentPageProps> = ({ onNavigate }) =>
     </div>
   );
 };
+

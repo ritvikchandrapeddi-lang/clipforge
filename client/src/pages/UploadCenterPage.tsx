@@ -316,3 +316,4 @@ export const UploadCenterPage: React.FC<UploadCenterPageProps> = ({ onNavigate }
     </div>
   );
 };
+
