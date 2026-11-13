@@ -1,0 +1,21 @@
+{
+  "name": "clipforge",
+  "version": "1.0.0",
+  "description": "ClipForge - Distributed Lecture Video Processing Platform",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install && cd ../workers && npm install",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "dev:workers": "cd workers && npm run dev",
+    "dev": "concurrently -k -n \"CLIENT,SERVER1,SERVER2,WORKERS\" -c \"cyan,magenta,blue,yellow\" \"npm run dev:client\" \"cd server && cross-env PORT=4001 npm run dev\" \"cd server && cross-env PORT=4002 npm run dev\" \"npm run dev:workers\"",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "build:workers": "cd workers && npm run build",
+    "build": "npm run build:client && npm run build:server && npm run build:workers"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3"
+  }
+}
