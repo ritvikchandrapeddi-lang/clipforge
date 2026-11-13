@@ -152,3 +152,9 @@ export interface SimulationParams {
   networkLatencyMs: number;
 }
 
+export interface InfrastructureStatus {
+  database: 'connected' | 'disconnected';
+  rabbitmq: 'connected' | 'disconnected';
+  redis: 'connected' | 'simulated';
+}
+

@@ -116,6 +116,14 @@ export function isDbReady(): boolean {
   return isConnected;
 }
 
+export function isRealPostgresConnected(): boolean {
+  return !useFallbackStorage && isConnected && pgPool !== null;
+}
+
+export function getDbMode(): 'postgres' | 'fallback_json' {
+  return useFallbackStorage ? 'fallback_json' : 'postgres';
+}
+
 export async function query(text: string, params: any[] = []): Promise<QueryResult<any>> {
   if (!useFallbackStorage && pgPool) {
     try {

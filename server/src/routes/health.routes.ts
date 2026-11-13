@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { isDbReady, query } from '../db/connection';
+import { isDbReady, isRealPostgresConnected, query } from '../db/connection';
 import { isRabbitMqReady } from '../rabbitmq/publisher';
+import { isRedisReady } from '../redis/client';
 import { INSTANCE_ID, STORAGE_DIR } from '../config';
 import fs from 'fs';
 
@@ -35,10 +36,17 @@ healthRouter.get('/ready', async (req: Request, res: Response) => {
   res.status(isReady ? 200 : 503).json({
     status: isReady ? 'ready' : 'degraded',
     instance: INSTANCE_ID,
+    infrastructure: {
+      database: isRealPostgresConnected() ? 'connected' : 'disconnected',
+      storage: storageWritable ? 'accessible' : 'unavailable',
+      rabbitmq: rabbitMqStatus ? 'connected' : 'disconnected',
+      redis: isRedisReady() ? 'connected' : 'simulated',
+    },
     components: {
       database: dbStatus ? 'connected' : 'offline',
       storage: storageWritable ? 'accessible' : 'unavailable',
       rabbitmq: rabbitMqStatus ? 'connected' : 'fallback_queue',
+      redis: isRedisReady() ? 'connected' : 'simulated',
     },
     timestamp: new Date().toISOString(),
   });
@@ -162,6 +170,11 @@ healthRouter.get('/api/overview', async (req: Request, res: Response) => {
             status: 'info',
           },
         ],
+      },
+      infrastructure: {
+        database: isRealPostgresConnected() ? 'connected' : 'disconnected',
+        rabbitmq: isRabbitMqReady() ? 'connected' : 'disconnected',
+        redis: isRedisReady() ? 'connected' : 'simulated',
       },
     });
   } catch (err: any) {

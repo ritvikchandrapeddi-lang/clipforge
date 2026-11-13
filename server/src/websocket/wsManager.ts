@@ -1,8 +1,9 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import http from 'http';
 import { INSTANCE_ID } from '../config';
-import { subscribeToEvents, publishEvent, CHANNELS } from '../redis/client';
-import { query } from '../db/connection';
+import { subscribeToEvents, publishEvent, isRedisReady, CHANNELS } from '../redis/client';
+import { query, isRealPostgresConnected } from '../db/connection';
+import { isRabbitMqReady } from '../rabbitmq/publisher';
 
 let wss: WebSocketServer | null = null;
 const clients = new Set<WebSocket>();
@@ -72,6 +73,11 @@ async function getInitialSyncPayload(): Promise<any> {
     type: 'SYNC_ALL',
     instanceId: INSTANCE_ID,
     timestamp: new Date().toISOString(),
+    infrastructure: {
+      database: isRealPostgresConnected() ? 'connected' : 'disconnected',
+      rabbitmq: isRabbitMqReady() ? 'connected' : 'disconnected',
+      redis: isRedisReady() ? 'connected' : 'simulated',
+    },
     videos: videosResult.rows.map((r: any) => ({
       id: r.id,
       title: r.title,

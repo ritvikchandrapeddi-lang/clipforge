@@ -9,6 +9,7 @@ import {
   ObservatoryAnalysis,
   SystemOverviewStats,
   SimulationParams,
+  InfrastructureStatus,
 } from '../types';
 import {
   mockOverviewStats,
@@ -23,6 +24,7 @@ import {
 
 interface SocketContextType {
   isConnected: boolean;
+  infrastructure: InfrastructureStatus;
   activeWebInstance: string;
   stats: SystemOverviewStats;
   videos: VideoItem[];
@@ -64,6 +66,11 @@ const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [infrastructure, setInfrastructure] = useState<InfrastructureStatus>({
+    database: 'disconnected',
+    rabbitmq: 'disconnected',
+    redis: 'simulated',
+  });
   const [activeWebInstance, setActiveWebInstance] = useState<string>('web-instance-1 (Active)');
   const [stats, setStats] = useState<SystemOverviewStats>(mockOverviewStats);
   const [videos, setVideos] = useState<VideoItem[]>(mockVideos);
@@ -106,6 +113,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               if (data.departments) setDepartments(data.departments);
               if (data.observatory) setObservatory(data.observatory);
               if (data.instanceId) setActiveWebInstance(data.instanceId);
+              if (data.infrastructure) setInfrastructure(data.infrastructure);
             } else if (data.type === 'JOB_PROGRESS') {
               setJobs((prev) =>
                 prev.map((j) => (j.id === data.jobId ? { ...j, progress: data.progress, status: data.status } : j))
@@ -385,6 +393,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const data = await overviewRes.value.json();
         if (data.stats) setStats(data.stats);
         if (data.instanceId) setActiveWebInstance(`${data.instanceId} (Active)`);
+        if (data.infrastructure) setInfrastructure(data.infrastructure);
       }
 
       if (videosRes.status === 'fulfilled' && videosRes.value.ok) {
@@ -420,6 +429,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     <SocketContext.Provider
       value={{
         isConnected,
+        infrastructure,
         activeWebInstance,
         stats,
         videos,

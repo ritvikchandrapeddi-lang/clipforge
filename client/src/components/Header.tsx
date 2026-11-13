@@ -18,7 +18,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
-  const { isConnected, activeWebInstance, stats, refreshData } = useSocket();
+  const { isConnected, infrastructure, activeWebInstance, stats, refreshData } = useSocket();
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const handleRefresh = async () => {
@@ -77,25 +77,57 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
           <span className="text-blue-300 font-mono font-medium text-[11px]">{activeWebInstance}</span>
         </div>
 
+        {/* PostgreSQL Database Status */}
+        <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/90 border border-slate-800 text-xs">
+          <Database className={`w-3.5 h-3.5 ${infrastructure?.database === 'connected' ? 'text-emerald-400' : 'text-rose-400'}`} />
+          <span className="text-slate-400 font-mono text-[11px]">PostgreSQL:</span>
+          <span
+            className={`w-2 h-2 rounded-full ${
+              infrastructure?.database === 'connected' ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'
+            }`}
+          ></span>
+          <span
+            className={`font-mono text-[11px] font-semibold ${
+              infrastructure?.database === 'connected' ? 'text-emerald-400' : 'text-rose-400'
+            }`}
+          >
+            {infrastructure?.database === 'connected' ? 'CONNECTED' : 'DISCONNECTED'}
+          </span>
+        </div>
+
         {/* RabbitMQ Status */}
         <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/90 border border-slate-800 text-xs">
-          <Layers className="w-3.5 h-3.5 text-amber-400" />
+          <Layers className={`w-3.5 h-3.5 ${infrastructure?.rabbitmq === 'connected' ? 'text-emerald-400' : 'text-rose-400'}`} />
           <span className="text-slate-400 font-mono text-[11px]">RabbitMQ:</span>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="text-emerald-400 font-mono text-[11px]">Ready</span>
+          <span
+            className={`w-2 h-2 rounded-full ${
+              infrastructure?.rabbitmq === 'connected' ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'
+            }`}
+          ></span>
+          <span
+            className={`font-mono text-[11px] font-semibold ${
+              infrastructure?.rabbitmq === 'connected' ? 'text-emerald-400' : 'text-rose-400'
+            }`}
+          >
+            {infrastructure?.rabbitmq === 'connected' ? 'CONNECTED' : 'DISCONNECTED'}
+          </span>
         </div>
 
         {/* Redis Real-Time Socket */}
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/90 border border-slate-800 text-xs">
-          <Radio className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-slate-400 font-mono text-[11px]">Live Sync:</span>
+          <Radio className={`w-3.5 h-3.5 ${infrastructure?.redis === 'connected' ? 'text-emerald-400' : 'text-amber-400'}`} />
+          <span className="text-slate-400 font-mono text-[11px]">Redis:</span>
           <span
             className={`w-2 h-2 rounded-full ${
-              isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400'
+              infrastructure?.redis === 'connected' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
             }`}
           ></span>
-          <span className="text-slate-200 font-mono text-[11px]">
-            {isConnected ? 'WebSocket' : 'Simulated'}
+          <span
+            className={`font-mono text-[11px] font-semibold ${
+              infrastructure?.redis === 'connected' ? 'text-emerald-400' : 'text-amber-400'
+            }`}
+          >
+            {infrastructure?.redis === 'connected' ? 'CONNECTED' : 'SIMULATED'}
           </span>
         </div>
 

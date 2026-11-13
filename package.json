@@ -8,6 +8,7 @@
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
     "dev:workers": "cd workers && npm run dev",
+    "redis": "node scripts/start-redis.js",
     "dev": "concurrently -k -n \"CLIENT,SERVER1,SERVER2,WORKERS\" -c \"cyan,magenta,blue,yellow\" \"npm run dev:client\" \"cd server && cross-env PORT=4001 npm run dev\" \"cd server && cross-env PORT=4002 npm run dev\" \"npm run dev:workers\"",
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",
