@@ -5,9 +5,14 @@ import path from 'path';
 import { PORT, INSTANCE_ID, STORAGE_DIR, PROCESSED_DIR, UPLOADS_DIR, initStorageDirectories } from './config';
 import { initDb } from './db/connection';
 import { initRabbitMQ } from './rabbitmq/publisher';
+import { initRedis } from './redis/client';
+import { initWebSocketServer } from './websocket/wsManager';
 import { uploadRouter } from './routes/upload.routes';
 import { videoRouter } from './routes/videos.routes';
 import { healthRouter } from './routes/health.routes';
+import { dlqRouter } from './routes/dlq.routes';
+import { observatoryRouter } from './routes/observatory.routes';
+import { simulatorRouter } from './routes/simulator.routes';
 
 const app = express();
 const server = http.createServer(app);
@@ -27,6 +32,9 @@ app.use('/media/uploads', express.static(UPLOADS_DIR));
 app.use(healthRouter); // /health, /ready, /api/admin/metrics, etc.
 app.use('/api/uploads', uploadRouter);
 app.use('/api', videoRouter);
+app.use('/api/deadletter', dlqRouter);
+app.use('/api/observatory', observatoryRouter);
+app.use('/api/simulator', simulatorRouter);
 
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -44,7 +52,13 @@ async function startServer(): Promise<void> {
   // 3. Declare RabbitMQ queue topology & confirm channels
   await initRabbitMQ();
 
-  // 4. Start HTTP Server
+  // 4. Initialize Redis pub/sub client
+  await initRedis();
+
+  // 5. Initialize WebSockets on Node HTTP server
+  initWebSocketServer(server);
+
+  // 6. Start HTTP Server
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`================================================================`);
     console.log(`🚀 ClipForge Stateless Web Instance: [${INSTANCE_ID}]`);
